@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapas Garmin – Pedido e Download</title>
+    <style>
+        /* ===== RESET & FONTE ===== */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Space Mono', monospace;
+            background: #0a0a0f;
+            color: #e8e8f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .container {
+            width: 100%;
+            max-width: 550px;
+            background: #12121a;
+            border-radius: 16px;
+            box-shadow: 0 0 30px rgba(0,255,0,0.1);
+            overflow: hidden;
+        }
+        /* ===== ABAS ===== */
+        .tabs {
+            display: flex;
+            background: #0a0a0f;
+            border-bottom: 2px solid #1e1e2a;
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 14px 0;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            color: #6b6b80;
+            transition: 0.3s;
+            position: relative;
+        }
+        .tab.active {
+            color: #D8FD68;
+            background: #12121a;
+        }
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 25%;
+            width: 50%;
+            height: 3px;
+            background: #D8FD68;
+            border-radius: 2px;
+        }
+        /* ===== CONTEÚDO DAS ABAS ===== */
+        .tab-content {
+            display: none;
+            padding: 2rem 1.5rem;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        /* ===== FORMULÁRIOS ===== */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            font-size: 13px;
+            color: #a0a0b5;
+            margin-bottom: 0.4rem;
+            font-weight: 700;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: none;
+            font-family: inherit;
+            font-size: 14px;
+            background: #1a1a28;
+            color: #e8e8f0;
+            outline: none;
+            transition: 0.3s;
+            border: 1px solid #2a2a3a;
+        }
+        input:focus, select:focus {
+            border-color: #D8FD68;
+            box-shadow: 0 0 10px rgba(216,253,104,0.2);
+        }
+        button {
+            background: #D8FD68;
+            color: #0a0a0f;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 0.5rem;
+        }
+        button:hover {
+            background: #c4f04a;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(216,253,104,0.2);
+        }
+        .helper-text {
+            font-size: 11px;
+            color: #6b6b80;
+            margin-top: 5px;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            accent-color: #D8FD68;
+        }
+        .price-tag {
+            color: #D8FD68;
+            font-weight: 700;
+            visibility: hidden;
+        }
+        .price-tag.show { visibility: visible; }
+        /* ===== MODAL ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: #12121a;
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            border: 1px solid #2a2a3a;
+            text-align: center;
+        }
+        .modal h3 { margin-bottom: 1rem; color: #D8FD68; }
+        .modal p { margin-bottom: 1.5rem; font-size: 14px; line-height: 1.6; }
+        /* ===== RESULTADO DOWNLOAD ===== */
+        .map-list {
+            list-style: none;
+            margin-top: 1rem;
+        }
+        .map-item {
+            background: #1a1a28;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .download-btn {
+            background: #D8FD68;
+            color: #0a0a0f;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .status-badge {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: #2a2a3a;
+            color: #6b6b80;
+        }
+        .status-pronto { background: #D8FD68; color: #0a0a0f; font-weight: 700; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tabs">
+            <div class="tab active" data-tab="pedir">🗺️ Pedir Mapa</div>
+            <div class="tab" data-tab="baixar">📥 Baixar Mapa</div>
+        </div>
+
+        <!-- Aba PEDIR MAPA -->
+        <div class="tab-content active" id="pedir">
+            <form id="orderForm">
+                <div class="form-group">
+                    <label>Nome do Caçador *</label>
+                    <input type="text" id="nome" required placeholder="Seu nome completo">
+                </div>
+
+                <div class="form-group">
+                    <label>Modelo do GPS Garmin *</label>
+                    <select id="modelo" required>
+                        <option value="">Selecione...</option>
+                        <option value="Alpha 100">Alpha 100</option>
+                        <option value="Alpha 200">Alpha 200</option>
+                        <option value="Alpha 200i">Alpha 200i</option>
+                        <option value="Alpha 300">Alpha 300</option>
+                        <option value="Alpha 300i">Alpha 300i</option>
+                        <option value="Astro 320">Astro 320</option>
+                        <option value="Astro 430">Astro 430</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="traducaoGroup" style="display: none;">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="traducaoCheck">
+                        <label for="traducaoCheck" style="margin:0;">Traduzir GPS para português do Brasil</label>
+                        <span class="price-tag" id="precoTag">+ R$ 50,00</span>
+                    </div>
+                    <span class="helper-text">Disponível apenas para Alpha 100 e Astro 430</span>
+                </div>
+
+                <div class="form-group">
+                    <label>Centro do seu mapa *</label>
+                    <input type="text" id="centro" required placeholder="Cidade, Estado ou coordenadas ou link do Google Maps">
+                    <button type="button" id="getLocationBtn" style="margin-top: 8px; padding: 8px; font-size: 12px;">📍 Usar minha localização atual</button>
+                    <span class="helper-text">Ex: "São Paulo, SP" ou "-23.5505, -46.6333"</span>
+                </div>
+
+                <div class="form-group">
+                    <label>ID do seu GPS (número de série único) *</label>
+                    <input type="text" id="deviceId" required placeholder="Ex: 3354243111">
+                    <span class="helper-text">Este ID será usado para baixar seu mapa depois.</span>
+                </div>
+
+                <button type="submit">📨 Enviar Pedido</button>
+            </form>
+        </div>
+
+        <!-- Aba BAIXAR MAPA -->
+        <div class="tab-content" id="baixar">
+            <div class="form-group">
+                <label>ID do seu GPS</label>
+                <input type="text" id="searchId" placeholder="Digite o ID do aparelho">
+                <button id="searchBtn" style="margin-top: 10px;">Buscar Mapas</button>
+            </div>
+            <div id="resultados"></div>
+        </div>
+    </div>
+
+    <!-- Modal de tradução -->
+    <div class="modal" id="modalTraducao">
+        <div class="modal-content">
+            <h3>🌐 Tradução do GPS</h3>
+            <p>Essa tradução foi desenvolvida por nossa equipe e garante 100% do idioma português do Brasil para o seu dispositivo.</p>
+            <p><strong>Acréscimo de R$ 50,00</strong> ao valor final.</p>
+            <button id="aceitarTraducao">Aceitar</button>
+            <button id="fecharModal" style="background:#2a2a3a; color:#e8e8f0; margin-top:10px;">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- Modal de sucesso -->
+    <div class="modal" id="modalSucesso">
+        <div class="modal-content">
+            <h3>✔️ Pedido enviado com sucesso!</h3>
+            <p id="resumoPedido"></p>
+            <p>Você receberá instruções sobre a retirada quando o mapa estiver pronto.</p>
+            <button id="fecharSucesso">Fechar</button>
+        </div>
+    </div>
+
+    <script>
+        // ==================== CONFIGURAÇÕES (ALTERE AQUI) ====================
+        const CONFIG = {
+            googleScriptUrl: 'https://script.google.com/macros/s/AKfycbwbqCmpFQGVqGp90yfL2HtXOaMcV4XYXJYYGjvyk0dj0e1BrkWY479GNIHkXrPahplG/exec', // <-- SUBSTITUA pela URL do seu Web App
+            callMeBotApiKey: '6980410',   // <-- SUBSTITUA pela chave do CallMeBot
+            whatsappNumero: '5591981743266'           // Seu número com código do país
+        };
+        // ====================================================================
+
+        // Controle de abas
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Mostrar/esconder opção de tradução conforme modelo
+        const modeloSelect = document.getElementById('modelo');
+        const traducaoGroup = document.getElementById('traducaoGroup');
+        const traducaoCheck = document.getElementById('traducaoCheck');
+        const precoTag = document.getElementById('precoTag');
+        modeloSelect.addEventListener('change', function() {
+            const modelo = this.value;
+            if (modelo === 'Alpha 100' || modelo === 'Astro 430') {
+                traducaoGroup.style.display = 'block';
+                traducaoCheck.checked = false;
+                precoTag.classList.remove('show');
+            } else {
+                traducaoGroup.style.display = 'none';
+                traducaoCheck.checked = false;
+                precoTag.classList.remove('show');
+            }
+        });
+
+        // Modal de tradução
+        const modalTraducao = document.getElementById('modalTraducao');
+        traducaoCheck.addEventListener('change', function() {
+            if (this.checked) {
+                modalTraducao.style.display = 'flex';
+            } else {
+                precoTag.classList.remove('show');
+            }
+        });
+        document.getElementById('aceitarTraducao').addEventListener('click', () => {
+            precoTag.classList.add('show');
+            modalTraducao.style.display = 'none';
+            traducaoCheck.checked = true;
+        });
+        document.getElementById('fecharModal').addEventListener('click', () => {
+            traducaoCheck.checked = false;
+            precoTag.classList.remove('show');
+            modalTraducao.style.display = 'none';
+        });
+
+        // Obter localização atual
+        document.getElementById('getLocationBtn').addEventListener('click', () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(pos => {
+                    document.getElementById('centro').value = `${pos.coords.latitude}, ${pos.coords.longitude}`;
+                }, () => alert('Não foi possível obter a localização.'));
+            } else {
+                alert('Geolocalização não suportada pelo navegador.');
+            }
+        });
+
+        // Enviar formulário de pedido
+        const orderForm = document.getElementById('orderForm');
+        const modalSucesso = document.getElementById('modalSucesso');
+        const resumoPedido = document.getElementById('resumoPedido');
+        orderForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nome = document.getElementById('nome').value.trim();
+            const modelo = modeloSelect.value;
+            const centro = document.getElementById('centro').value.trim();
+            const deviceId = document.getElementById('deviceId').value.trim();
+            const traducao = traducaoCheck.checked && (modelo === 'Alpha 100' || modelo === 'Astro 430');
+
+            if (!nome || !modelo || !centro || !deviceId) {
+                alert('Preencha todos os campos obrigatórios.');
+                return;
+            }
+
+            // Monta mensagem para WhatsApp e para resumo
+            let mensagem = `📌 *Novo Pedido de Mapa*\n`;
+            mensagem += `👤 Caçador: ${nome}\n`;
+            mensagem += `📱 Modelo: ${modelo}\n`;
+            mensagem += `🆔 ID: ${deviceId}\n`;
+            mensagem += `📍 Centro: ${centro}\n`;
+            if (traducao) mensagem += `🔤 Tradução: SIM (+R$50,00)\n`;
+
+            // Exibe resumo no modal de sucesso
+            resumoPedido.innerText = mensagem.replace(/\*/g, '');
+
+            // Envia para o Google Apps Script (que mandará o WhatsApp)
+            try {
+                const response = await fetch(CONFIG.googleScriptUrl, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        nome,
+                        modelo,
+                        centro,
+                        deviceId,
+                        traducao,
+                        mensagem: mensagem
+                    })
+                });
+                const data = await response.json();
+                if (data.result === 'success') {
+                    modalSucesso.style.display = 'flex';
+                    orderForm.reset();
+                    traducaoGroup.style.display = 'none';
+                    precoTag.classList.remove('show');
+                } else {
+                    alert('Erro ao enviar pedido. Tente novamente.');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Falha na comunicação. Verifique sua internet e tente novamente.');
+            }
+        });
+
+        document.getElementById('fecharSucesso').addEventListener('click', () => {
+            modalSucesso.style.display = 'none';
+        });
+
+        // Fechar modais clicando fora
+        window.onclick = function(event) {
+            if (event.target === modalTraducao) modalTraducao.style.display = 'none';
+            if (event.target === modalSucesso) modalSucesso.style.display = 'none';
+        };
+
+        // Buscar mapas na planilha (Google Sheets JSON via fetch)
+        const searchBtn = document.getElementById('searchBtn');
+        const resultadosDiv = document.getElementById('resultados');
+        searchBtn.addEventListener('click', async () => {
+            const searchId = document.getElementById('searchId').value.trim().toUpperCase();
+            if (!searchId) {
+                alert('Digite o ID do GPS.');
+                return;
+            }
+            // URL pública da planilha no formato JSON (substitua pela sua)
+            const sheetUrl = 'https://opensheet.elk.sh/1vSfQ8RbC7fXOG4LzcpKxLAUAJrY778ObFIlLaswebOA1Pl8S3cV1YRiotJliSihVd76i1iW5wPdnT24/Sheet1'; // <-- ALTERE
+            try {
+                const res = await fetch(sheetUrl);
+                const data = await res.json();
+                const encontrados = data.filter(row => row.DeviceID && row.DeviceID.toUpperCase() === searchId);
+                if (encontrados.length === 0) {
+                    resultadosDiv.innerHTML = '<p style="color:#6b6b80;">Nenhum mapa encontrado para esse ID. Verifique ou aguarde.</p>';
+                    return;
+                }
+                let html = '<ul class="map-list">';
+                encontrados.forEach(item => {
+                    const link = item.MapLink || '';
+                    const status = link ? 'Pronto' : 'Pendente';
+                    const dataPedido = item.Timestamp ? item.Timestamp.split(' ')[0] : '';
+                    html += `
+                        <li class="map-item">
+                            <div>
+                                <strong>${item.Model || ''}</strong><br>
+                                <small>${dataPedido} – ${item.CentralPoint || ''}</small>
+                            </div>
+                            <div style="display:flex;gap:10px;align-items:center;">
+                                <span class="status-badge ${status === 'Pronto' ? 'status-pronto' : ''}">${status}</span>
+                                ${link ? `<a href="${link}" target="_blank" class="download-btn">⬇ Baixar</a>` : ''}
+                            </div>
+                        </li>`;
+                });
+                html += '</ul>';
+                resultadosDiv.innerHTML = html;
+            } catch (err) {
+                console.error(err);
+                resultadosDiv.innerHTML = '<p style="color:red;">Erro ao buscar dados. Tente novamente mais tarde.</p>';
+            }
+        });
+    </script>
+</body>
+</html>
