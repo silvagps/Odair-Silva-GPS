@@ -175,7 +175,7 @@
         <div class="tab-content active" id="pedir">
             <form id="orderForm">
                 <div class="form-group">
-                    <label>Seu Nome *</label>
+                    <label>Nome *</label>
                     <input type="text" id="nome" required placeholder="Seu nome">
                 </div>
                 <div class="form-group">
@@ -203,11 +203,11 @@
                     <label>Centro do seu mapa *</label>
                     <input type="text" id="centro" required placeholder="Cidade, Estado ou coordenadas ou link do Google Maps">
                     <button type="button" id="getLocationBtn" style="padding: 8px; font-size: 12px;">📍 Usar minha localização atual</button>
-                    <span class="helper-text">Nota: A partir desse ponto, seu mapa terá um Raio 100km de cobertura de satélite. </span>
+                    <span class="helper-text">Nota: A partir desse ponto seu mapa terá um raio de 100km de cobertura de satélite.</span>
                 </div>
                 <div class="form-group">
-                    <label>ID do seu GPS *</label>
-                    <input type="text" id="deviceId" required placeholder="Ex: 3354243111">
+                    <label>ID do seu GPS (número de série único) *</label>
+                    <input type="text" id="deviceId" required placeholder="Ex: ALPHA200I-123456">
                 </div>
                 <button type="submit">📨 Enviar Pedido</button>
             </form>
@@ -246,14 +246,15 @@
     </div>
 
     <script>
-        // ==================== CONFIGURAÇÕES (ALTERE APENAS AQUI) ====================
+        // ==================== CONFIGURAÇÕES ====================
+        // ATENÇÃO: As URLs abaixo já estão corretas. Não altere a não ser que as URLs mudem.
         const CONFIG = {
-            // URL do Google Apps Script (copiada da implantação)
+            // URL do Google Apps Script que dispara o WhatsApp
             googleScriptUrl: 'https://script.google.com/macros/s/AKfycbxBV_j_k4FSzoOfx9OYLQpMoUTsOjhHiT6iv0gRPpp5dukjdsqHWdYv8cOHv2TJQ0pZ/exec',
-            // URL da planilha em JSON (via OpenSheet). Substitua SEU_ID pelo ID verdadeiro.
+            // URL do OpenSheet que retorna os dados da planilha em JSON
             sheetUrl: 'https://opensheet.elk.sh/1wnODz6qEfR58A5HBBJFsC-AktxW-keKSVd1gz4n8yv0/MeusMapas'
         };
-        // ============================================================================
+        // =========================================================
 
         // Controle de abas
         document.querySelectorAll('.tab').forEach(tab => {
@@ -265,7 +266,7 @@
             });
         });
 
-        // Mostrar/esconder opção de tradução conforme modelo
+        // Exibe/esconde opção de tradução conforme modelo
         const modeloSelect = document.getElementById('modelo');
         const traducaoGroup = document.getElementById('traducaoGroup');
         const traducaoCheck = document.getElementById('traducaoCheck');
@@ -313,7 +314,7 @@
             }
         });
 
-        // Envio do formulário (sem fetch, sem CORS)
+        // Envio do formulário (XMLHttpRequest + FormData = sem CORS)
         const orderForm = document.getElementById('orderForm');
         const modalSucesso = document.getElementById('modalSucesso');
         const resumoPedido = document.getElementById('resumoPedido');
@@ -330,11 +331,11 @@
                 return;
             }
 
-            // Monta a mensagem para o WhatsApp
+            // Mensagem que chegará no seu WhatsApp
             let mensagem = `📌 *Novo Pedido de Mapa*\n👤 Caçador: ${nome}\n📱 Modelo: ${modelo}\n🆔 ID: ${deviceId}\n📍 Centro: ${centro}\n🔤 Tradução: ${traducao === 'Sim' ? 'SIM (+R$50,00)' : 'Não'}`;
             resumoPedido.innerText = mensagem.replace(/\*/g, '');
 
-            // Envio via XMLHttpRequest (FormData) – não sofre CORS
+            // Prepara FormData e envia via XMLHttpRequest (sem bloqueio CORS)
             const formData = new FormData();
             formData.append('mensagem', mensagem);
 
@@ -347,11 +348,11 @@
                     traducaoGroup.style.display = 'none';
                     precoTag.classList.remove('show');
                 } else {
-                    alert('Erro ao enviar pedido. Tente novamente.');
+                    alert('Erro ao enviar pedido. Código ' + xhr.status);
                 }
             };
             xhr.onerror = function() {
-                alert('Falha na comunicação. Verifique sua internet.');
+                alert('Falha na comunicação. Verifique sua internet e tente novamente.');
             };
             xhr.send(formData);
         });
@@ -366,7 +367,7 @@
             if (event.target === modalSucesso) modalSucesso.style.display = 'none';
         };
 
-        // Busca de mapas na planilha (leitura via fetch – aceitável para GET público)
+        // Busca de mapas na aba Baixar Mapa
         const searchBtn = document.getElementById('searchBtn');
         const resultadosDiv = document.getElementById('resultados');
         searchBtn.addEventListener('click', async () => {
