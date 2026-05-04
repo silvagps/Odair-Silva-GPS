@@ -1,409 +1,546 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapas Garmin – Pedido e Download</title>
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Space Mono', monospace;
-            background: #0a0a0f;
-            color: #e8e8f0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-        }
-        .container {
-            width: 100%;
-            max-width: 550px;
-            background: #12121a;
-            border-radius: 16px;
-            box-shadow: 0 0 30px rgba(0,255,0,0.1);
-            overflow: hidden;
-        }
-        .tabs {
-            display: flex;
-            background: #0a0a0f;
-            border-bottom: 2px solid #1e1e2a;
-        }
-        .tab {
-            flex: 1;
-            text-align: center;
-            padding: 14px 0;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 14px;
-            color: #6b6b80;
-            transition: 0.3s;
-        }
-        .tab.active {
-            color: #D8FD68;
-            background: #12121a;
-            border-bottom: 3px solid #D8FD68;
-        }
-        .tab-content {
-            display: none;
-            padding: 2rem 1.5rem;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        label {
-            display: block;
-            font-size: 13px;
-            color: #a0a0b5;
-            margin-bottom: 0.4rem;
-            font-weight: 700;
-        }
-        input, select, button {
-            width: 100%;
-            padding: 12px 15px;
-            border-radius: 10px;
-            border: none;
-            font-family: inherit;
-            font-size: 14px;
-            background: #1a1a28;
-            color: #e8e8f0;
-            outline: none;
-            border: 1px solid #2a2a3a;
-        }
-        input:focus, select:focus {
-            border-color: #D8FD68;
-            box-shadow: 0 0 10px rgba(216,253,104,0.2);
-        }
-        button {
-            background: #D8FD68;
-            color: #0a0a0f;
-            font-weight: 700;
-            cursor: pointer;
-            border: none;
-            margin-top: 0.5rem;
-        }
-        button:hover {
-            background: #c4f04a;
-        }
-        .helper-text {
-            font-size: 11px;
-            color: #6b6b80;
-            margin-top: 5px;
-        }
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .checkbox-group input[type="checkbox"] {
-            width: auto;
-            accent-color: #D8FD68;
-        }
-        .price-tag {
-            color: #D8FD68;
-            font-weight: 700;
-            visibility: hidden;
-        }
-        .price-tag.show { visibility: visible; }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        .modal-content {
-            background: #12121a;
-            border-radius: 16px;
-            padding: 2rem;
-            max-width: 400px;
-            width: 90%;
-            border: 1px solid #2a2a3a;
-            text-align: center;
-        }
-        .modal h3 { margin-bottom: 1rem; color: #D8FD68; }
-        .modal p { margin-bottom: 1.5rem; font-size: 14px; line-height: 1.6; }
-        .map-list {
-            list-style: none;
-            margin-top: 1rem;
-        }
-        .map-item {
-            background: #1a1a28;
-            padding: 12px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .download-btn {
-            background: #D8FD68;
-            color: #0a0a0f;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: 700;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 13px;
-        }
-        .status-badge {
-            font-size: 12px;
-            padding: 4px 10px;
-            border-radius: 20px;
-            background: #2a2a3a;
-            color: #6b6b80;
-        }
-        .status-pronto { background: #D8FD68; color: #0a0a0f; font-weight: 700; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Odair Silva GPS – Mapa BirdsEye 200×200 km</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0a1f2f 0%, #0b2b3b 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 680px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(18px);
+      border-radius: 28px;
+      padding: 36px 28px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 191, 99, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #eef5f9;
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .brand h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #00bf63;
+      text-shadow: 0 0 18px rgba(0, 191, 99, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .brand h1 span {
+      background: #00bf63;
+      color: #0a1f2f;
+      font-size: 1rem;
+      padding: 5px 14px;
+      border-radius: 30px;
+      letter-spacing: 0.4px;
+      font-weight: 600;
+      text-shadow: none;
+    }
+
+    .brand p {
+      font-size: 1rem;
+      color: #b0d4e0;
+      margin-top: 6px;
+      font-style: italic;
+      opacity: 0.9;
+    }
+
+    .form-card {
+      background: rgba(10, 30, 44, 0.7);
+      border-radius: 20px;
+      padding: 22px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(0, 191, 99, 0.25);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+    }
+
+    .form-card label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #c3e2f0;
+      letter-spacing: 0.3px;
+    }
+
+    .form-card input,
+    .form-card select {
+      width: 100%;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      color: #ffffff;
+      font-size: 0.95rem;
+      transition: 0.2s;
+      outline: none;
+    }
+
+    .form-card input:focus,
+    .form-card select:focus {
+      border-color: #00bf63;
+      box-shadow: 0 0 12px rgba(0, 191, 99, 0.35);
+      background: rgba(0,0,0,0.25);
+    }
+
+    .form-card input::placeholder {
+      color: rgba(255,255,255,0.4);
+    }
+
+    .traducao-box {
+      background: rgba(255, 193, 7, 0.08);
+      border-left: 4px solid #ffc107;
+      border-radius: 10px;
+      padding: 14px;
+      margin-top: 14px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      font-weight: 500;
+      color: #ffe9a7;
+    }
+
+    .traducao-box input {
+      width: auto;
+      margin: 0;
+    }
+
+    .btn-gerar {
+      width: 100%;
+      padding: 15px;
+      background: #00bf63;
+      border: none;
+      border-radius: 16px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #0a1f2f;
+      cursor: pointer;
+      transition: 0.25s;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 8px 22px rgba(0, 191, 99, 0.3);
+      margin-top: 10px;
+    }
+
+    .btn-gerar:hover {
+      background: #00d975;
+      box-shadow: 0 10px 28px rgba(0, 255, 120, 0.45);
+      transform: scale(1.02);
+    }
+
+    .alert {
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      display: none;
+    }
+
+    .alert-info {
+      background: rgba(0, 191, 255, 0.12);
+      border: 1px solid #00bfff;
+      color: #d0f0ff;
+    }
+
+    .alert-error {
+      background: rgba(255, 50, 50, 0.12);
+      border: 1px solid #ff4d6d;
+      color: #ffc2cc;
+    }
+
+    hr {
+      margin: 28px 0 18px;
+      border: 0.5px solid rgba(255,255,255,0.08);
+    }
+
+    .instructions {
+      background: rgba(0,0,0,0.3);
+      border-radius: 16px;
+      padding: 18px;
+      color: #cde7f5;
+    }
+
+    .instructions h3 {
+      color: #00bf63;
+      margin-bottom: 10px;
+    }
+
+    .instructions ol {
+      padding-left: 22px;
+      line-height: 1.7;
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 500px) {
+      .container {
+        padding: 24px 16px;
+      }
+      .brand h1 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="tabs">
-            <div class="tab active" data-tab="pedir">🗺️ Pedir Mapa</div>
-            <div class="tab" data-tab="baixar">📥 Baixar Mapa</div>
-        </div>
-
-        <!-- ABA PEDIR MAPA -->
-        <div class="tab-content active" id="pedir">
-            <form id="orderForm">
-                <div class="form-group">
-                    <label>Nome *</label>
-                    <input type="text" id="nome" required placeholder="Seu nome">
-                </div>
-                <div class="form-group">
-                    <label>Modelo do GPS Garmin *</label>
-                    <select id="modelo" required>
-                        <option value="">Selecione...</option>
-                        <option value="Alpha 100">Alpha 100</option>
-                        <option value="Alpha 200">Alpha 200</option>
-                        <option value="Alpha 200i">Alpha 200i</option>
-                        <option value="Alpha 300">Alpha 300</option>
-                        <option value="Alpha 300i">Alpha 300i</option>
-                        <option value="Astro 320">Astro 320</option>
-                        <option value="Astro 430">Astro 430</option>
-                    </select>
-                </div>
-                <div class="form-group" id="traducaoGroup" style="display: none;">
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="traducaoCheck">
-                        <label for="traducaoCheck" style="margin:0;">Traduzir GPS para português do Brasil</label>
-                        <span class="price-tag" id="precoTag">+ R$ 50,00</span>
-                    </div>
-                    <span class="helper-text">Disponível apenas para Alpha 100 e Astro 430</span>
-                </div>
-                <div class="form-group">
-                    <label>Centro do seu mapa *</label>
-                    <input type="text" id="centro" required placeholder="Cidade, Estado ou coordenadas ou link do Google Maps">
-                    <button type="button" id="getLocationBtn" style="padding: 8px; font-size: 12px;">📍 Usar minha localização atual</button>
-                    <span class="helper-text">Nota: A partir desse ponto seu mapa terá um raio de 100km de cobertura de satélite.</span>
-                </div>
-                <div class="form-group">
-                    <label>ID do seu GPS *</label>
-                    <input type="text" id="deviceId" required placeholder="Ex: 3354243111">
-                </div>
-                <button type="submit">📨 Enviar Pedido</button>
-            </form>
-        </div>
-
-        <!-- ABA BAIXAR MAPA -->
-        <div class="tab-content" id="baixar">
-            <div class="form-group">
-                <label>ID do seu GPS</label>
-                <input type="text" id="searchId" placeholder="Digite o ID do aparelho">
-                <button id="searchBtn">Buscar Mapas</button>
-            </div>
-            <div id="resultados"></div>
-        </div>
+  <div class="container">
+    <div class="brand">
+      <h1>
+        🛰️ Odair Silva GPS
+        <span>BirdsEye Pro</span>
+      </h1>
+      <p>"Mapas de Satélite: Suas caçadas seguras e dinâmicas"</p>
     </div>
 
-    <!-- Modal de tradução -->
-    <div class="modal" id="modalTraducao">
-        <div class="modal-content">
-            <h3>🌐 Tradução do GPS</h3>
-            <p>Essa tradução foi desenvolvida por nossa equipe e garante 100% do idioma português do Brasil para o seu dispositivo.</p>
-            <p><strong>Acréscimo de R$ 50,00</strong> ao valor final.</p>
-            <button id="aceitarTraducao">Aceitar</button>
-            <button id="fecharModal" style="background:#2a2a3a; color:#e8e8f0; margin-top:10px;">Cancelar</button>
-        </div>
+    <div class="form-card">
+      <label for="local">📍 Centro do mapa (Cidade/UF, Coordenadas, link do Maps ou localização do WhatsApp)</label>
+      <input type="text" id="local" placeholder="Ex.: Cidade/UF  ou  -23.5505,-46.6333  ou  cole o link aqui">
+
+      <label for="cliente" style="margin-top:16px;">👤 Nome</label>
+      <input type="text" id="cliente" placeholder="Ex.: Seu nome">
+
+      <label for="digitos" style="margin-top:16px;">📱 WhatsApp</label>
+      <input type="text" id="digitos" placeholder="Ex.: (00) 91234-5678" maxlength="15">
+
+      <label for="gpsid" style="margin-top:16px;">🆔 ID do GPS</label>
+      <input type="text" id="gpsid" placeholder="Ex.: 3354243111 - Vá em configurações, procure por 'Sobre' ou 'Aboute'">
+
+      <label for="modelo" style="margin-top:16px;">📡 Modelo do GPS Garmin</label>
+      <select id="modelo">
+        <option value="">-- Selecione o modelo --</option>
+        <option value="alpha100">Alpha 100</option>
+        <option value="alpha200">Alpha 200</option>
+        <option value="alpha200i">Alpha 200i</option>
+        <option value="alpha300">Alpha 300</option>
+        <option value="alpha300i">Alpha 300i</option>
+        <option value="astro430">Astro 430</option>
+        <option value="astro320">Astro 320</option>
+      </select>
+
+      <div id="traducaoDiv" class="traducao-box">
+        <label style="display: flex; align-items: center; gap: 10px; margin:0; cursor: pointer;">
+          <input type="checkbox" id="traducao"> Deseja traduzir idioma do aparelho? (+ R$ 50,00)
+        </label>
+      </div>
     </div>
 
-    <!-- Modal de sucesso -->
-    <div class="modal" id="modalSucesso">
-        <div class="modal-content">
-            <h3>✔️ Pedido enviado com sucesso!</h3>
-            <p id="resumoPedido"></p>
-            <p>Você receberá instruções quando o mapa estiver pronto.</p>
-            <button id="fecharSucesso">Fechar</button>
-        </div>
+    <button id="gerarBtn" class="btn-gerar">🗂️ Gerar ZIP com Mapa e Recibo</button>
+
+    <div id="info" class="alert alert-info"></div>
+    <div id="error" class="alert alert-error"></div>
+
+    <hr>
+    <div class="instructions">
+      <h3>📥 Como usar no BaseCamp</h3>
+      <ol>
+        <li>Extraia o arquivo <strong>.zip</strong> recebido.</li>
+        <li>Abra o <strong>.gpx</strong> no BaseCamp.</li>
+        <li>Use a ferramenta <strong>BirdsEye → Selecionar área da imagem</strong>.</li>
+        <li>Para cada quadrado, clique nos cantos da trilha correspondente (ex.: <em>Mapa 01 – João Silva – ...</em>).</li>
+        <li>Copie os arquivos <strong>.jnx</strong> para o cartão SD do aparelho (pasta Garmin/Birdseye).</li>
+      </ol>
     </div>
+  </div>
 
-    <script>
-        // ==================== CONFIGURAÇÕES ====================
-        // ATENÇÃO: As URLs abaixo já estão corretas. Não altere a não ser que as URLs mudem.
-        const CONFIG = {
-            // URL do Google Apps Script que dispara o WhatsApp
-            googleScriptUrl: 'https://script.google.com/macros/s/AKfycbxBV_j_k4FSzoOfx9OYLQpMoUTsOjhHiT6iv0gRPpp5dukjdsqHWdYv8cOHv2TJQ0pZ/exec',
-            // URL do OpenSheet que retorna os dados da planilha em JSON
-            sheetUrl: 'https://opensheet.elk.sh/1wnODz6qEfR58A5HBBJFsC-AktxW-keKSVd1gz4n8yv0/MeusMapas'
-        };
-        // =========================================================
+  <script>
+    document.getElementById('modelo').addEventListener('change', function() {
+      const modelo = this.value;
+      document.getElementById('traducaoDiv').style.display = 
+        (modelo === 'alpha100' || modelo === 'astro430') ? 'flex' : 'none';
+    });
 
-        // Controle de abas
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                tab.classList.add('active');
-                document.getElementById(tab.dataset.tab).classList.add('active');
-            });
-        });
+    function parseInput(input) {
+      if (!input) return null;
 
-        // Exibe/esconde opção de tradução conforme modelo
-        const modeloSelect = document.getElementById('modelo');
-        const traducaoGroup = document.getElementById('traducaoGroup');
-        const traducaoCheck = document.getElementById('traducaoCheck');
-        const precoTag = document.getElementById('precoTag');
-        modeloSelect.addEventListener('change', function() {
-            if (this.value === 'Alpha 100' || this.value === 'Astro 430') {
-                traducaoGroup.style.display = 'block';
-                traducaoCheck.checked = false;
-                precoTag.classList.remove('show');
-            } else {
-                traducaoGroup.style.display = 'none';
-                traducaoCheck.checked = false;
-                precoTag.classList.remove('show');
-            }
-        });
+      // Lista de padrões para extrair coordenadas
+      const patterns = [
+        // Link do Google Maps com @lat,lon,zoom
+        /@(-?\d+\.?\d*),(-?\d+\.?\d*)/,
+        // Link do Google Maps com /place/lat,lon
+        /\/place\/(-?\d+\.?\d*),(-?\d+\.?\d*)/,
+        // Link com parâmetro ?q=lat,lon ou &q=lat,lon
+        /[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/,
+        // Link com parâmetro ?center=lat,lon
+        /[?&]center=(-?\d+\.?\d*),(-?\d+\.?\d*)/,
+        // Coordenadas entre colchetes (usadas em alguns compartilhamentos)
+        /\[(-?\d+\.?\d*),\s*(-?\d+\.?\d*)\]/,
+        // Padrão simples: dois números separados por vírgula ou espaço
+        /^(-?\d+\.?\d*)[,\s]+(-?\d+\.?\d*)$/
+      ];
 
-        // Modal de tradução
-        const modalTraducao = document.getElementById('modalTraducao');
-        traducaoCheck.addEventListener('change', function() {
-            if (this.checked) {
-                modalTraducao.style.display = 'flex';
-            } else {
-                precoTag.classList.remove('show');
-            }
-        });
-        document.getElementById('aceitarTraducao').addEventListener('click', () => {
-            precoTag.classList.add('show');
-            modalTraducao.style.display = 'none';
-            traducaoCheck.checked = true;
-        });
-        document.getElementById('fecharModal').addEventListener('click', () => {
-            traducaoCheck.checked = false;
-            precoTag.classList.remove('show');
-            modalTraducao.style.display = 'none';
-        });
+      for (let pattern of patterns) {
+        let match = input.match(pattern);
+        if (match && match.length >= 3) {
+          let lat = parseFloat(match[1]);
+          let lon = parseFloat(match[2]);
+          if (!isNaN(lat) && !isNaN(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
+            return { type: 'coords', lat, lon };
+          }
+        }
+      }
 
-        // Localização atual
-        document.getElementById('getLocationBtn').addEventListener('click', () => {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(pos => {
-                    document.getElementById('centro').value = pos.coords.latitude + ', ' + pos.coords.longitude;
-                }, () => alert('Não foi possível obter a localização.'));
-            } else {
-                alert('Geolocalização não suportada.');
-            }
-        });
+      // Se não encontrou coordenadas, assume que é um nome de local
+      return { type: 'query', text: input.trim() };
+    }
 
-        // Envio do formulário (XMLHttpRequest + FormData = sem CORS)
-        const orderForm = document.getElementById('orderForm');
-        const modalSucesso = document.getElementById('modalSucesso');
-        const resumoPedido = document.getElementById('resumoPedido');
-        orderForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const nome = document.getElementById('nome').value.trim();
-            const modelo = modeloSelect.value;
-            const centro = document.getElementById('centro').value.trim();
-            const deviceId = document.getElementById('deviceId').value.trim();
-            const traducao = traducaoCheck.checked && (modelo === 'Alpha 100' || modelo === 'Astro 430') ? 'Sim' : 'Não';
+    async function geocode(query) {
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
+      const resp = await fetch(url);
+      const data = await resp.json();
+      if (data.length === 0) throw new Error(`Local "${query}" não encontrado.`);
+      return {
+        lat: parseFloat(data[0].lat),
+        lon: parseFloat(data[0].lon),
+        nomeCurto: data[0].display_name.split(',')[0].trim()
+      };
+    }
 
-            if (!nome || !modelo || !centro || !deviceId) {
-                alert('Preencha todos os campos obrigatórios.');
-                return;
-            }
+    function sanitizeFilename(str) {
+      return str.replace(/[\\\/:*?"<>|]/g, '').replace(/\s+/g, ' ').trim();
+    }
 
-            // Mensagem que chegará no seu WhatsApp
-            let mensagem = `📌 *Novo Pedido de Mapa*\n👤 Caçador: ${nome}\n📱 Modelo: ${modelo}\n🆔 ID: ${deviceId}\n📍 Centro: ${centro}\n🔤 Tradução: ${traducao === 'Sim' ? 'SIM (+R$50,00)' : 'Não'}`;
-            resumoPedido.innerText = mensagem.replace(/\*/g, '');
+    function generateGridGPX(centerLat, centerLon, cliente, digitos) {
+      const mPerDegLat = 111320;
+      const latRad = centerLat * Math.PI / 180;
+      const mPerDegLon = 111320 * Math.cos(latRad);
+      const halfSide = 100000;
+      const dLatTotal = 2 * (halfSide / mPerDegLat);
+      const dLonTotal = 2 * (halfSide / mPerDegLon);
+      const rows = 5, cols = 5;
+      const cellDLat = dLatTotal / rows;
+      const cellDLon = dLonTotal / cols;
+      const NW_lat = centerLat + halfSide / mPerDegLat;
+      const NW_lon = centerLon - halfSide / mPerDegLon;
 
-            // Prepara FormData e envia via XMLHttpRequest (sem bloqueio CORS)
-            const formData = new FormData();
-            formData.append('mensagem', mensagem);
+      let tracksXml = '';
+      for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+          const num = (i * cols + j + 1).toString().padStart(2, '0');
+          const trackName = `Mapa ${num} – ${cliente} – ${digitos}`;
+          const nw = { lat: NW_lat - i * cellDLat, lon: NW_lon + j * cellDLon };
+          const ne = { lat: NW_lat - i * cellDLat, lon: NW_lon + (j+1) * cellDLon };
+          const se = { lat: NW_lat - (i+1) * cellDLat, lon: NW_lon + (j+1) * cellDLon };
+          const sw = { lat: NW_lat - (i+1) * cellDLat, lon: NW_lon + j * cellDLon };
+          const vertices = [nw, ne, se, sw];
+          tracksXml += `
+    <trk>
+      <name>${trackName}</name>
+      <trkseg>`;
+          vertices.forEach(v => {
+            tracksXml += `\n        <trkpt lat="${v.lat.toFixed(6)}" lon="${v.lon.toFixed(6)}"></trkpt>`;
+          });
+          tracksXml += `\n        <trkpt lat="${nw.lat.toFixed(6)}" lon="${nw.lon.toFixed(6)}"></trkpt>`;
+          tracksXml += `
+      </trkseg>
+    </trk>`;
+        }
+      }
 
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', CONFIG.googleScriptUrl, true);
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    modalSucesso.style.display = 'flex';
-                    orderForm.reset();
-                    traducaoGroup.style.display = 'none';
-                    precoTag.classList.remove('show');
-                } else {
-                    alert('Erro ao enviar pedido. Código ' + xhr.status);
-                }
-            };
-            xhr.onerror = function() {
-                alert('Falha na comunicação. Verifique sua internet e tente novamente.');
-            };
-            xhr.send(formData);
-        });
+      return `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="OdairSilvaGPS" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata>
+    <name>Grade 200×200 km – ${cliente} – ${digitos}</name>
+    <desc>Centro: ${centerLat.toFixed(6)}, ${centerLon.toFixed(6)}</desc>
+  </metadata>
+  <wpt lat="${centerLat.toFixed(6)}" lon="${centerLon.toFixed(6)}">
+    <name>CENTRO</name>
+    <sym>Flag, Blue</sym>
+  </wpt>
+${tracksXml}
+</gpx>`;
+    }
 
-        document.getElementById('fecharSucesso').addEventListener('click', () => {
-            modalSucesso.style.display = 'none';
-        });
+    function crc16CCITT(data) {
+      let crc = 0xFFFF;
+      for (let i = 0; i < data.length; i++) {
+        crc ^= data.charCodeAt(i) << 8;
+        for (let j = 0; j < 8; j++) {
+          if (crc & 0x8000) {
+            crc = (crc << 1) ^ 0x1021;
+          } else {
+            crc <<= 1;
+          }
+        }
+      }
+      return (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+    }
 
-        // Fechar modais clicando fora
-        window.onclick = function(event) {
-            if (event.target === modalTraducao) modalTraducao.style.display = 'none';
-            if (event.target === modalSucesso) modalSucesso.style.display = 'none';
-        };
+    function gerarPixCode(valor) {
+      const chave = '+5591981743266';
+      const nome = 'JOSE ODAIR DA SILVA';
+      const cidade = 'CAPANEMA';
+      const valorStr = valor.toFixed(2);
+      const tamanhoValor = valorStr.length.toString().padStart(2, '0');
+      const base = '00020101021126360014br.gov.bcb.pix0114' + chave + '5204000053039865802BR5919' + nome + '6008' + cidade + '62070503***';
+      const comValor = base + '54' + tamanhoValor + valorStr;
+      const crc = crc16CCITT(comValor + '6304');
+      return comValor + '6304' + crc;
+    }
 
-        // Busca de mapas na aba Baixar Mapa
-        const searchBtn = document.getElementById('searchBtn');
-        const resultadosDiv = document.getElementById('resultados');
-        searchBtn.addEventListener('click', async () => {
-            const searchId = document.getElementById('searchId').value.trim().toUpperCase();
-            if (!searchId) {
-                alert('Digite o ID do GPS.');
-                return;
-            }
-            try {
-                const res = await fetch(CONFIG.sheetUrl);
-                const data = await res.json();
-                const encontrados = data.filter(row => row.DeviceID && row.DeviceID.toUpperCase() === searchId);
-                if (encontrados.length === 0) {
-                    resultadosDiv.innerHTML = '<p style="color:#6b6b80;">Nenhum mapa encontrado para esse ID. Verifique ou aguarde.</p>';
-                    return;
-                }
-                let html = '<ul class="map-list">';
-                encontrados.forEach(item => {
-                    const link = item.MapLink || '';
-                    const status = link ? 'Pronto' : 'Pendente';
-                    html += `
-                        <li class="map-item">
-                            <div><strong>${item.Model || ''}</strong><br><small>${item.Timestamp || ''} – ${item.CentralPoint || ''}</small></div>
-                            <div style="display:flex;gap:10px;align-items:center;">
-                                <span class="status-badge ${status === 'Pronto' ? 'status-pronto' : ''}">${status}</span>
-                                ${link ? `<a href="${link}" target="_blank" class="download-btn">⬇ Baixar</a>` : ''}
-                            </div>
-                        </li>`;
-                });
-                html += '</ul>';
-                resultadosDiv.innerHTML = html;
-            } catch (err) {
-                console.error(err);
-                resultadosDiv.innerHTML = '<p style="color:red;">Erro ao buscar dados. Tente novamente mais tarde.</p>';
-            }
-        });
-    </script>
+    function loadQRCodeImage(pixCode) {
+      const qrData = encodeURIComponent(pixCode);
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrData}`;
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error('Falha ao gerar QR Code.'));
+        img.src = qrUrl;
+      });
+    }
+
+    async function gerarReciboPDF(cliente, digitosWhatsApp, gpsid, modelo, traducao, centro, valorTotal) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const now = new Date().toLocaleDateString('pt-BR');
+
+      doc.setFontSize(16);
+      doc.text('RECIBO DE SERVIÇO', 105, 20, { align: 'center' });
+      doc.setFontSize(12);
+      let y = 35;
+      doc.text(`Cliente: ${cliente}`, 20, y);
+      y += 8;
+      doc.text(`WhatsApp: ${digitosWhatsApp}`, 20, y);
+      y += 8;
+      doc.text(`ID do GPS: ${gpsid}`, 20, y);
+      y += 8;
+      doc.text(`Modelo Garmin: ${modelo.toUpperCase()}`, 20, y);
+      y += 8;
+      doc.text(`Tradução de idioma: ${traducao ? 'Sim' : 'Não'}`, 20, y);
+      y += 10;
+      doc.text('Serviços:', 20, y);
+      y += 7;
+      doc.text('- Geração de grade 200×200 km (25 quadrados) para BirdsEye', 25, y);
+      y += 7;
+      if (traducao) {
+        doc.text('- Tradução de idioma do aparelho', 25, y);
+        y += 7;
+      }
+      y += 3;
+      doc.text(`Valor total: R$ ${valorTotal.toFixed(2).replace('.', ',')}`, 20, y);
+      y += 8;
+      doc.text(`Data: ${now}`, 20, y);
+      y += 8;
+      doc.text(`Centro de referência: ${centro}`, 20, y);
+      y += 12;
+
+      doc.setFontSize(14);
+      doc.text('Pagamento via PIX', 20, y);
+      y += 10;
+      doc.setFontSize(11);
+      doc.text('Chave: 91981743266', 20, y);
+      y += 7;
+      doc.text('Banco: Inter', 20, y);
+      y += 7;
+      doc.text('Titular: J. Odair da S.', 20, y);
+      y += 10;
+
+      const pixCode = gerarPixCode(valorTotal);
+      try {
+        const qrImage = await loadQRCodeImage(pixCode);
+        doc.addImage(qrImage, 'PNG', 20, y, 30, 30);
+        doc.setFontSize(9);
+        doc.text('Escaneie o QR Code', 20, y + 34);
+      } catch (e) {
+        doc.text('(QR Code não disponível)', 20, y);
+      }
+
+      return doc.output('blob');
+    }
+
+    async function handleGenerate() {
+      const localInput = document.getElementById('local').value.trim();
+      const cliente = document.getElementById('cliente').value.trim();
+      const digitos = document.getElementById('digitos').value.trim();
+      const gpsid = document.getElementById('gpsid').value.trim();
+      const modelo = document.getElementById('modelo').value;
+      const traducao = document.getElementById('traducao').checked;
+      const infoDiv = document.getElementById('info');
+      const errorDiv = document.getElementById('error');
+      infoDiv.style.display = 'none';
+      errorDiv.style.display = 'none';
+      infoDiv.textContent = '';
+      errorDiv.textContent = '';
+
+      if (!localInput) { errorDiv.textContent = '⚠️ Informe o centro do mapa.'; errorDiv.style.display = 'block'; return; }
+      if (!cliente) { errorDiv.textContent = '⚠️ Informe o nome do cliente.'; errorDiv.style.display = 'block'; return; }
+      if (!digitos || digitos.length < 8) { errorDiv.textContent = '⚠️ Informe o WhatsApp corretamente.'; errorDiv.style.display = 'block'; return; }
+      if (!gpsid) { errorDiv.textContent = '⚠️ Informe o ID do GPS.'; errorDiv.style.display = 'block'; return; }
+      if (!modelo) { errorDiv.textContent = '⚠️ Selecione o modelo Garmin.'; errorDiv.style.display = 'block'; return; }
+
+      const traducaoValida = (modelo === 'alpha100' || modelo === 'astro430') ? traducao : false;
+      const valorTotal = traducaoValida ? 400 : 350;
+
+      try {
+        infoDiv.textContent = '🔄 Processando, aguarde...';
+        infoDiv.style.display = 'block';
+
+        const parsed = parseInput(localInput);
+        let lat, lon, centro;
+        if (parsed && parsed.type === 'coords') {
+          lat = parsed.lat;
+          lon = parsed.lon;
+          centro = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+        } else {
+          // Tenta geocodificar como nome de local
+          const query = (parsed && parsed.text) ? parsed.text : localInput;
+          const geo = await geocode(query);
+          lat = geo.lat;
+          lon = geo.lon;
+          centro = geo.nomeCurto;
+        }
+
+        const gpxContent = generateGridGPX(lat, lon, cliente, digitos);
+        const gpxFileName = `${sanitizeFilename(cliente)} ${digitos}.gpx`;
+
+        const pdfBlob = await gerarReciboPDF(cliente, digitos, gpsid, modelo, traducaoValida, centro, valorTotal);
+        const pdfFileName = `Recibo_${sanitizeFilename(cliente)}_${digitos}.pdf`;
+
+        const zip = new JSZip();
+        zip.file(gpxFileName, gpxContent);
+        zip.file(pdfFileName, pdfBlob);
+
+        const zipBlob = await zip.generateAsync({type: 'blob'});
+        const zipFileName = `${sanitizeFilename(cliente)} ${digitos}.zip`;
+
+        saveAs(zipBlob, zipFileName);
+        infoDiv.textContent = `✅ ZIP "${zipFileName}" baixado com sucesso! Contém GPX e Recibo com Pix.`;
+      } catch (e) {
+        errorDiv.textContent = '❌ Erro: ' + e.message;
+        errorDiv.style.display = 'block';
+        infoDiv.style.display = 'none';
+        console.error(e);
+      }
+    }
+
+    document.getElementById('gerarBtn').addEventListener('click', handleGenerate);
+  </script>
 </body>
 </html>
